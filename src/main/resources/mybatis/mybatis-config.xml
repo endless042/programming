@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 모델 -->
+	<typeAliases>
+		<typeAlias type="vo.DrinksVO" alias="Drinks" />
+		<typeAlias type="vo.MilkVO" alias="Milk" />
+		<typeAlias type="vo.OrderVO" alias="Order" />
+		<typeAlias type="vo.SeasonVO" alias="Season" />
+		<typeAlias type="vo.UserVO" alias="User" />
+
+	</typeAliases>
+
+</configuration>

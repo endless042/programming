@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+	<!-- 외부 설정파일 위치 -->
+	<!-- <property resource="logback.properties" /> -->
+
+	<!-- 콘솔에 로그 찍기 -->
+	<appender name="console"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date %-5level %logger{0} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<!-- 파일로 로그 만들기 -->
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>C:/log/test-webapp.log</file>
+
+		<encoder>
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n
+			</Pattern>
+		</encoder>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>1024KB</MaxFileSize>
+		</triggeringPolicy>
+
+
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<FileNamePattern>C:\Log\test-webapp.%i.log.zip</FileNamePattern>
+			<MinIndex>1</MinIndex>
+			<MaxIndex>10</MaxIndex>
+
+		</rollingPolicy>
+
+	</appender>
+
+	<logger name="org.springframework" level="info" />
+	<logger name="dao" level="info" />
+	<logger name="intercepter" level="info" />
+	<logger name="vo" level="info" />
+	<logger name="service" level="info" />
+	<logger name="controller" level="info" />
+	
+	<root level="warn">
+				<appender-ref ref="console" />
+				<appender-ref ref="FILE" />
+			</root>
+	
+	<!-- <if condition='property("RUN_MODE").equals("SERVICE")'>
+		<then>
+			설정파일에 RUN_MODE 가 SERVICE로 정의되어 있으면 로깅 레벨을 INFO로 지정
+			<root level="info">
+				<appender-ref ref="console" />
+				<appender-ref ref="FILE" />
+			</root>
+		</then>
+		설정파일에 RUN_MODE 가 SERVICE로 정의되어 있지 않으면 로깅 레벨을 DEBUG 지정
+		<else>
+			<root level="debug">
+				<appender-ref ref="console" />
+				<appender-ref ref="FILE" />
+			</root>
+			</else>
+	</if>
+ -->
+		
+</configuration>

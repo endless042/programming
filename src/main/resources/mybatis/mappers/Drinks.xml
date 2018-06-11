@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="drinks">
+
+<select id="getDrinklist" resultType="Drinks" parameterType="hashmap">
+		<if test="option eq 'name'">
+			select * from (select rownum rnum ,a.* from (select *
+		 from drinks where name like '%'||#{keyword}||'%' order by regdate desc) 
+					a ) where rnum  between #{startRow} and #{endRow} 
+		</if>
+
+		<if test="option eq 'category'">
+		select * from (select rownum rnum ,a.* from (select *
+		 from drinks where category like '%'||#{keyword}||'%' order by regdate desc) 
+					a ) where rnum  between #{startRow} and #{endRow} 
+		</if>
+		
+		
+	</select>
+	
+	<select id="getDnum" resultType="int">
+		select nvl(max(dnum),0) from drinks
+	</select> 
+	
+	<select id="getDrinkCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) from drinks 
+	</select>
+	
+	<select id="getDrink" resultType="Drinks" parameterType="hashmap">
+		select * from drinks where dnum=#{dnum}
+	</select>
+	
+		<select id="getMilk" resultType="Milk" parameterType="hashmap">
+		select * from milk where dnum=#{dnum}
+	</select>
+	
+		<select id="getSeason" resultType="Season" parameterType="hashmap">
+		select * from season where dnum=#{dnum}
+	</select>
+	
+	<select id="getDrinkCountSearch" resultType="int" parameterType="hashmap">
+		<if test="option eq 'name'">
+		select nvl(count(*),0) from drinks where name like '%'||#{keyword}||'%'
+		</if>
+	
+		<if test="option eq 'category'">
+		select nvl(count(*),0) from drinks where category like '%'||#{keyword}||'%'
+		</if>
+	</select>
+	
+		<insert id="addMilkInfo" parameterType="Milk">
+    insert into milk(dnum, lowfat, soymilk, lactofree)
+    values(#{dnum},#{lowfat},#{soymilk},#{lactofree})
+ </insert>
+ 
+ 	
+		<insert id="addSeasonInfo" parameterType="Season">
+    insert into season(dnum, sdate,edate)
+    values(#{dnum},to_date(#{sdate},'YYYY/MM/DD'),to_date(#{edate},'YYYY/MM/DD'))
+ </insert>
+	
+	<insert id="addDrink" parameterType="Drinks">
+      insert into drinks(dnum, name, hot, ice, small, regular, large,category,shot,whip,milk,content,regdate, filename, filesize)
+      values(drinks_seq.nextval,#{name},#{hot},#{ice}, #{small}, #{regular}, #{large}, #{category}, #{shot}, #{whip}, #{milk},#{content},sysdate, #{filename},#{filesize})
+    </insert>
+	
+	<update id="modifyDrink" parameterType="Drinks">
+		update drinks set name=#{name}, hot=#{hot},ice=#{ice}, small=#{small}, regular=#{regular}, large=#{large},
+		shot=#{shot},whip=#{whip},content=#{content}, category=#{category}, milk=#{milk}, filename=#{filename},filesize=#{filesize}
+		where num=#{num}
+	</update>
+	
+	<delete id="deleteDrink" parameterType="hashmap" >
+ 	  delete from drinks where dnum=#{dnum}
+   </delete> 	
+	
+	<!-- <update id="updateRe_step" parameterType="Board">
+		update studyboard set re_step=re_step+1 where ref=#{ref} and re_step>#{re_step}
+		 and boardid = #{boardid} and studynum=#{studynum}
+	</update>
+	
+	
+	
+	<select id="getNextBoardid" resultType="int">
+		select boardidser.nextval from dual
+	</select>
+	
+
+	
+	<insert id="addBoard" parameterType="Type">
+      insert into boardtype(studynum, boardid, boardname, createdate)
+      values(#{studynum},#{boardid},#{boardname},sysdate)
+   </insert>
+   
+	<insert id="checkReader" parameterType="hashmap">
+      insert into checklist(studynum, num, boardid, reader, readerposition, readdate)
+      values(#{studynum},#{num},#{boardid},#{reader},#{readerposition},sysdate)
+   </insert>
+   
+	<insert id="addComment" parameterType="Comment">
+      insert into studycomment(studynum, num, boardid, content, writer, profile ,commentdate)
+      values(#{studynum},#{num}, #{boardid},#{content},#{writer},#{profile},sysdate)
+   </insert>
+	
+	<insert id="insertBoard" parameterType="Board">
+      insert into studyboard(num, boardid, studynum, writer, subject, reg_date, ref, re_step, 
+      re_level, readcount, content, filename, filesize)
+      values(#{num}, #{boardid},#{studynum},#{writer},#{subject},sysdate, #{ref},#{re_step},#{re_level}, 0, #{content},
+      #{filename},#{filesize})
+   </insert>
+	
+	<update id="addReadCount" parameterType="hashmap">
+		update studyboard set readcount = readcount +1 where num=#{num} and boardid =#{boardid}
+	</update>
+   
+	<select id="getArticle" resultType="Board" parameterType="hashmap">
+		select * from studyboard where num =#{num} and boardid =#{boardid} and studynum=#{group}
+	</select>
+					
+	<select id="getBoardType" resultType="Type" parameterType="hashmap">
+		select * from boardtype where studynum =#{group} and boardid =#{boardid}
+	</select>			
+	
+	
+	<select id="getnewBoardType" resultType="Type" parameterType="hashmap">
+			select * from boardtype where studynum =#{studynum} and boardid=(select max(boardid) from BOARDTYPE where studynum=#{studynum})
+	</select>		
+	
+					
+	<update id="updateArticle" parameterType="Board">
+		update studyboard set subject=#{subject}, content=#{content}, filename=#{filename}, filesize=#{filesize}
+		where num=#{num} and boardid=#{boardid} and studynum=#{studynum} 
+	</update>
+	
+	<update id="updateBoardType" parameterType="Type">
+		update boardtype set boardname=#{boardname} where studynum=#{studynum} and boardid=#{boardid} 
+	</update>
+	
+	<update id="updatePosition" parameterType="hashmap">
+		update groupposition set groupposition=#{groupposition} where studynum=#{studynum} and id=#{id}
+	</update>
+	
+   
+   <delete id="deleteArticle" parameterType="hashmap" >
+ 	  delete from studyboard where num=#{num} and boardid=#{boardid} and studynum=#{studynum}
+   </delete> 	
+   
+	<delete id="deleteBoard" parameterType="hashmap" >
+ 	  delete from boardtype where studynum=#{studynum} and boardid=#{boardid} 
+   </delete> 	
+		
+	<delete id="deletePosition" parameterType="hashmap" >
+ 	  delete from groupposition where studynum=#{studynum} and id=#{id}
+   </delete> 	
+		
+		
+	<select id="getTypeList" resultType="Type" parameterType="hashmap">	
+	select * from boardtype where studynum = #{group} order by createdate desc
+	</select> 
+	
+	<select id="getReadername" resultType="Check" parameterType="hashmap">	
+	select * from checklist where  studynum = #{studynum} and boardid=#{boardid} and num=${num} and reader=#{memberid}
+	</select> 
+					
+	
+	<select id="getCommentList" resultType="Comment" parameterType="hashmap">	
+	select * from studycomment where studynum = #{studynum} and boardid=#{boardid} and num=${num} order by commentdate
+	</select> 				
+	<select id="ReaderList" resultType="Check" parameterType="hashmap">	
+	select * from checklist where studynum = #{studynum} and boardid=#{boardid} and num=${num} order by readdate
+	</select> 				 -->
+					
+		
+</mapper>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+<insert id="addUser" parameterType="User">
+      insert into cafeuser(num, userid, passwd, email)
+      values(cafeuser_seq.nextval,#{userid},#{passwd},#{email})
+   </insert>
+   
+   <insert id="addOrder" parameterType="Order">
+      insert into orderhistory(onum, dnum, userid, temp,addopt,milk,count,drinksize,price,state)
+      values(orderhistory_seq.nextval,#{dnum},#{userid},#{temp},#{addopt},#{milk},#{count},#{drinksize},#{price},#{state})
+   </insert>
+   
+  	<select id="getUser" resultType="User">
+		select * from cafeuser where userid=#{userid} and passwd=#{passwd}
+	</select>
+	
+	<select id="getUserById" resultType="User">
+		select * from cafeuser where userid=#{userid}
+	</select>
+	
+	<select id="isUser" resultType="int">
+		select count(*) from cafeuser where userid=#{userid} and passwd=#{passwd}
+	</select>
+
+
+<select id="getUserlist" resultType="User" parameterType="hashmap">
+		<if test="option eq 'userid'">
+			select * from (select rownum rnum ,a.* from (select *
+		 from cafeuser where userid like '%'||#{keyword}||'%' order by regdate desc) 
+					a ) where rnum  between #{startRow} and #{endRow} 
+		</if>
+		<if test="option eq 'email'">
+		select * from (select rownum rnum ,a.* from (select *
+		 from cafeuser where email like '%'||#{keyword}||'%' order by regdate desc) 
+					a ) where rnum  between #{startRow} and #{endRow} 
+		</if>
+	
+	</select>
+
+	<select id="getUserCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) from cafeuser 
+	</select>
+	
+		<select id="getUserCountSearch" resultType="int" parameterType="hashmap">
+		<if test="option eq 'userid'">
+		select nvl(count(*),0) from cafeuser where userid like '%'||#{keyword}||'%'
+		</if>
+		<if test="option eq 'email'">
+		select nvl(count(*),0) from cafeuser where email like '%'||#{keyword}||'%'
+		</if>
+	</select>
+	 
+
+ <update id="modifyUser" parameterType="User">
+		update cafeuser set passwd=#{passwd}, email=#{email}
+		where userid=#{userid}
+	</update>
+	 <update id="modifyUserAdmin" parameterType="User">
+		update cafeuser set email=#{email}
+		where userid=#{userid}
+	</update>
+	
+	<delete id="deleteUser" parameterType="hashmap" >
+ 	  delete from cafeuser where userid=#{userid}
+   </delete> 	
+   
+    <update id="cancelOrder" parameterType="hashmap">
+		update orderhistory set state=0 where onum=#{onum}
+	</update>
+
+	<select id="idCheck" resultType="int">
+		select count(*) from cafeuser where userid=#{userid}
+	</select>
+
+<select id="getOrderlist" resultType="Order" parameterType="hashmap">
+		select * from orderhistory where userid=#{userid} order by regdate desc
+	</select>
+	
+		<select id="getOrderCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) from orderhistory where userid=#{userid}
+	</select>
+<!-- 
+ <select id="login" resultType="User">
+        select * from usertable where userid = #{userid} and passwd = #{passwd}
+    </select>
+
+<select id="getBooklist" resultType="Books" parameterType="hashmap">
+		select * from (select rownum rnum ,a.* from (select *
+		 from books order by regdate) 
+					a ) where rnum  between #{startRow} and #{endRow}
+	</select>
+	
+		<select id="getNextNumber" resultType="int">
+		select books_seq.nextval from dual
+	</select>
+	
+
+	<select id="getBookCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) from books 
+	</select> -->
+	
+	
+	<!-- <update id="updateRe_step" parameterType="Board">
+		update studyboard set re_step=re_step+1 where ref=#{ref} and re_step>#{re_step}
+		 and boardid = #{boardid} and studynum=#{studynum}
+	</update>
+	
+	
+	
+	<select id="getNextBoardid" resultType="int">
+		select boardidser.nextval from dual
+	</select>
+	
+
+	
+	<insert id="addBoard" parameterType="Type">
+      insert into boardtype(studynum, boardid, boardname, createdate)
+      values(#{studynum},#{boardid},#{boardname},sysdate)
+   </insert>
+   
+	<insert id="checkReader" parameterType="hashmap">
+      insert into checklist(studynum, num, boardid, reader, readerposition, readdate)
+      values(#{studynum},#{num},#{boardid},#{reader},#{readerposition},sysdate)
+   </insert>
+   
+	<insert id="addComment" parameterType="Comment">
+      insert into studycomment(studynum, num, boardid, content, writer, profile ,commentdate)
+      values(#{studynum},#{num}, #{boardid},#{content},#{writer},#{profile},sysdate)
+   </insert>
+	
+	<insert id="insertBoard" parameterType="Board">
+      insert into studyboard(num, boardid, studynum, writer, subject, reg_date, ref, re_step, 
+      re_level, readcount, content, filename, filesize)
+      values(#{num}, #{boardid},#{studynum},#{writer},#{subject},sysdate, #{ref},#{re_step},#{re_level}, 0, #{content},
+      #{filename},#{filesize})
+   </insert>
+	
+	<update id="addReadCount" parameterType="hashmap">
+		update studyboard set readcount = readcount +1 where num=#{num} and boardid =#{boardid}
+	</update>
+   
+	<select id="getArticle" resultType="Board" parameterType="hashmap">
+		select * from studyboard where num =#{num} and boardid =#{boardid} and studynum=#{group}
+	</select>
+					
+	<select id="getBoardType" resultType="Type" parameterType="hashmap">
+		select * from boardtype where studynum =#{group} and boardid =#{boardid}
+	</select>			
+	
+	
+	<select id="getnewBoardType" resultType="Type" parameterType="hashmap">
+			select * from boardtype where studynum =#{studynum} and boardid=(select max(boardid) from BOARDTYPE where studynum=#{studynum})
+	</select>		
+	
+					
+	<update id="updateArticle" parameterType="Board">
+		update studyboard set subject=#{subject}, content=#{content}, filename=#{filename}, filesize=#{filesize}
+		where num=#{num} and boardid=#{boardid} and studynum=#{studynum} 
+	</update>
+	
+	<update id="updateBoardType" parameterType="Type">
+		update boardtype set boardname=#{boardname} where studynum=#{studynum} and boardid=#{boardid} 
+	</update>
+	
+	<update id="updatePosition" parameterType="hashmap">
+		update groupposition set groupposition=#{groupposition} where studynum=#{studynum} and id=#{id}
+	</update>
+	
+   
+   <delete id="deleteArticle" parameterType="hashmap" >
+ 	  delete from studyboard where num=#{num} and boardid=#{boardid} and studynum=#{studynum}
+   </delete> 	
+   
+	<delete id="deleteBoard" parameterType="hashmap" >
+ 	  delete from boardtype where studynum=#{studynum} and boardid=#{boardid} 
+   </delete> 	
+		
+	<delete id="deletePosition" parameterType="hashmap" >
+ 	  delete from groupposition where studynum=#{studynum} and id=#{id}
+   </delete> 	
+		
+		
+	<select id="getTypeList" resultType="Type" parameterType="hashmap">	
+	select * from boardtype where studynum = #{group} order by createdate desc
+	</select> 
+	
+	<select id="getReadername" resultType="Check" parameterType="hashmap">	
+	select * from checklist where  studynum = #{studynum} and boardid=#{boardid} and num=${num} and reader=#{memberid}
+	</select> 
+					
+	
+	<select id="getCommentList" resultType="Comment" parameterType="hashmap">	
+	select * from studycomment where studynum = #{studynum} and boardid=#{boardid} and num=${num} order by commentdate
+	</select> 				
+	<select id="ReaderList" resultType="Check" parameterType="hashmap">	
+	select * from checklist where studynum = #{studynum} and boardid=#{boardid} and num=${num} order by readdate
+	</select> 				 -->
+					
+		
+</mapper>
